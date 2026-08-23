@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NEXI GESTION — Connexion</title>
+<link rel="icon" href="assets/logo.png" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="login-page">
+
+  <div class="login-card">
+    <div class="brand">
+      <img src="assets/logo.png" alt="Nexi Academy" class="brand-logo" />
+      <p class="brand-mark">NEXI GESTION </p>
+      <p class="brand-tagline">Teach yourself.</p>
+    </div>
+    <hr class="brand-divider" />
+    <p class="login-subtitle">Suivi des ambassadeurs et des activités terrain</p>
+
+    <div id="error-box" class="error-message"></div>
+
+    <form id="login-form" autocomplete="off">
+      <div class="field">
+        <label for="username">Identifiant</label>
+        <input type="text" id="username" name="username" placeholder="ex. anas ou votre email" required />
+      </div>
+      <div class="field">
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" name="password" placeholder="••••••••" required />
+      </div>
+      <button type="submit" class="btn-primary">Se connecter</button>
+    </form>
+
+    <p class="login-hint">
+      Accès réservé à l'équipe NEXI ACADEMY. Pour toute question sur votre
+      accès, contactez l'administrateur.
+    </p>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    if (nexiGetSession()) {
+      window.location.href = "dashboard.html";
+    }
+
+    const form = document.getElementById("login-form");
+    const errorBox = document.getElementById("error-box");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value;
+
+      const session = nexiLogin(username, password);
+      if (session) {
+        window.location.href = "dashboard.html";
+      } else {
+        errorBox.textContent = "Identifiant ou mot de passe incorrect.";
+        errorBox.classList.add("visible");
+      }
+    });
+  </script>
+</body>
+</html>

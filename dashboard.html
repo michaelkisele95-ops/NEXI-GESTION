@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nexi Suivi — Tableau de bord</title>
+<link rel="icon" href="assets/logo.png" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="app-shell">
+
+  <header class="app-header">
+    <div class="header-brand">
+      <img src="assets/logo.png" alt="Nexi Academy" />
+      <p class="brand-mark">NEXI SUIVI</p>
+    </div>
+    <div class="header-user">
+      <div class="user-chip">
+        <div class="user-name" id="user-name">—</div>
+        <div class="user-role" id="user-role">—</div>
+      </div>
+      <button class="icon-btn" id="logout-btn">Se déconnecter</button>
+    </div>
+  </header>
+
+  <main class="app-main">
+
+    <div id="sync-banner" class="sync-banner off">
+      <span class="dot"></span>
+      <span id="sync-text">Synchronisation Google Sheet non configurée — les données restent enregistrées sur cet appareil.</span>
+    </div>
+
+    <nav class="tab-bar" id="tab-bar">
+      <button class="tab-btn active" data-tab="activite">Mon activité</button>
+      <button class="tab-btn" data-tab="apercu" id="tab-btn-apercu" style="display:none;">Vue d'ensemble</button>
+      <button class="tab-btn" data-tab="acces" id="tab-btn-acces" style="display:none;">Gestion des accès</button>
+    </nav>
+
+    <!-- ============================================================
+         ONGLET : MON ACTIVITÉ
+         ============================================================ -->
+    <section class="tab-panel active" id="tab-activite">
+
+      <section class="stat-grid" id="stat-grid">
+        <div class="stat-card">
+          <p class="stat-label">Foyers recrutés</p>
+          <p class="stat-value teal" id="stat-foyers">0</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Commissions perçues</p>
+          <p class="stat-value gold" id="stat-commission">0 FC</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Activités enregistrées</p>
+          <p class="stat-value" id="stat-count">0</p>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Nouvelle activité</h2>
+        <p class="panel-subtitle">Enregistrez un recrutement, un suivi, un test envoyé ou toute autre action terrain.</p>
+
+        <form id="entry-form">
+          <div class="form-grid">
+            <div class="field">
+              <label for="entry-date">Date</label>
+              <input type="date" id="entry-date" required />
+            </div>
+            <div class="field">
+              <label for="entry-type">Type d'activité</label>
+              <select id="entry-type" required></select>
+            </div>
+            <div class="field">
+              <label for="entry-foyers">Nombre de foyers concernés — optionnel</label>
+              <input type="number" id="entry-foyers" placeholder="0" min="0" step="1" />
+            </div>
+            <div class="field">
+              <label for="entry-amount">Montant / commission (FC) — optionnel</label>
+              <input type="number" id="entry-amount" placeholder="0" min="0" step="1" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="entry-description">Description</label>
+            <textarea id="entry-description" placeholder="ex. Recrutement du foyer Mme Kalonji, quartier Golf, test envoyé vendredi." required></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">Enregistrer l'activité</button>
+            <span class="save-note" id="save-note">Activité enregistrée ✓</span>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel">
+        <h2 id="history-title">Mon historique</h2>
+        <p class="panel-subtitle" id="history-subtitle">Vos activités enregistrées.</p>
+
+        <div class="filter-row">
+          <div class="field" id="filter-user-wrap" style="display:none;">
+            <label for="filter-user">Membre</label>
+            <select id="filter-user"><option value="">Tous</option></select>
+          </div>
+          <div class="field">
+            <label for="filter-type">Type</label>
+            <select id="filter-type"><option value="">Tous</option></select>
+          </div>
+          <div class="field">
+            <label for="filter-from">Du</label>
+            <input type="date" id="filter-from" />
+          </div>
+          <div class="field">
+            <label for="filter-to">Au</label>
+            <input type="date" id="filter-to" />
+          </div>
+        </div>
+
+        <div class="table-toolbar">
+          <span class="panel-subtitle" style="margin:0;" id="result-count">0 résultat(s)</span>
+          <button class="btn-secondary" id="export-btn">Exporter en CSV</button>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Membre</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Foyers</th>
+                <th>Montant (FC)</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="entries-body"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="empty-state" style="display:none;">
+          <p><strong>Aucune activité pour l'instant.</strong></p>
+          <p>Utilisez le formulaire ci-dessus pour enregistrer votre première activité.</p>
+        </div>
+      </section>
+    </section>
+
+    <!-- ============================================================
+         ONGLET : VUE D'ENSEMBLE (admin + superviseur)
+         ============================================================ -->
+    <section class="tab-panel" id="tab-apercu">
+      <section class="stat-grid" id="apercu-stat-grid">
+        <div class="stat-card">
+          <p class="stat-label">Ambassadeurs actifs</p>
+          <p class="stat-value" id="apercu-stat-ambassadeurs">0</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Foyers recrutés (total)</p>
+          <p class="stat-value teal" id="apercu-stat-foyers">0</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Commissions (total)</p>
+          <p class="stat-value gold" id="apercu-stat-commission">0 FC</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Activités cette semaine</p>
+          <p class="stat-value terracotta" id="apercu-stat-semaine">0</p>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2 id="apercu-title">Répartition par ambassadeur</h2>
+        <p class="panel-subtitle">Classement par nombre de foyers recrutés.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Ambassadeur</th>
+                <th>Zone</th>
+                <th>Foyers recrutés</th>
+                <th>Commissions (FC)</th>
+                <th>Activités</th>
+                <th>Dernière activité</th>
+              </tr>
+            </thead>
+            <tbody id="ranking-body"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="ranking-empty" style="display:none;">
+          <p>Aucune activité enregistrée pour l'instant dans ce périmètre.</p>
+        </div>
+      </section>
+    </section>
+
+    <!-- ============================================================
+         ONGLET : GESTION DES ACCÈS (admin uniquement)
+         ============================================================ -->
+    <section class="tab-panel" id="tab-acces">
+      <section class="panel">
+        <h2>Ajouter un accès</h2>
+        <p class="panel-subtitle">Le nouveau compte est utilisable immédiatement sur cet appareil. Voir la note ci-dessous pour le rendre disponible partout.</p>
+        <form id="user-form">
+          <div class="form-grid">
+            <div class="field">
+              <label for="new-username">Identifiant</label>
+              <input type="text" id="new-username" placeholder="ex. kevin ou email" required />
+            </div>
+            <div class="field">
+              <label for="new-password">Mot de passe</label>
+              <input type="text" id="new-password" placeholder="ex. nexi2026kevin" required />
+            </div>
+            <div class="field">
+              <label for="new-name">Nom complet</label>
+              <input type="text" id="new-name" placeholder="ex. Kevin Ntumba" required />
+            </div>
+            <div class="field">
+              <label for="new-role">Rôle</label>
+              <select id="new-role">
+                <option value="ambassadeur">Ambassadeur</option>
+                <option value="superviseur">Superviseur</option>
+                <option value="admin">Administrateur</option>
+              </select>
+            </div>
+            <div class="field" id="new-supervisor-wrap">
+              <label for="new-supervisor">Superviseur rattaché</label>
+              <select id="new-supervisor"></select>
+            </div>
+            <div class="field">
+              <label for="new-zone">Zone</label>
+              <select id="new-zone"></select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" style="width:auto; padding:11px 26px;">Ajouter l'accès</button>
+            <span class="save-note" id="user-save-note">Accès ajouté ✓</span>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel">
+        <h2>Comptes actuels</h2>
+        <p class="panel-subtitle">Tous les identifiants actuellement actifs, avec leur rôle et leur hiérarchie.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Identifiant</th>
+                <th>Nom</th>
+                <th>Rôle</th>
+                <th>Rattaché à</th>
+                <th>Zone</th>
+                <th>Origine</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="users-body"></tbody>
+          </table>
+        </div>
+        <p class="access-note" style="margin-top:14px;">
+          <strong>Note :</strong> les comptes ajoutés ou retirés ici s'appliquent immédiatement sur cet appareil.
+          Pour qu'un changement d'accès soit visible sur tous les appareils (autre ordinateur, autre navigateur),
+          reportez-le aussi dans le fichier <strong>js/config.js</strong> — voir le README, section
+          « Deux façons de gérer les accès ».
+        </p>
+      </section>
+    </section>
+
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
